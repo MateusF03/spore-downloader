@@ -1,8 +1,8 @@
-use std::path::Path;
+use anyhow::Result;
 use reqwest::blocking::Client;
-use anyhow::{Context, Result};
 use std::fs::File;
 use std::io::copy;
+use std::path::Path;
 
 pub struct SporeServer {
     endpoint: String,
@@ -17,12 +17,12 @@ impl SporeServer {
         }
     }
 
-    pub fn get_profile_info(&self, username: &str) -> Result<String> {
-       self.get_text(&format!("{}/rest/user/{}", self.endpoint, username))
-    }
-
     pub fn get_assets_from_user_feed(&self, username: &str) -> Result<String> {
         self.get_text(&format!("{}/atom/assets/user/{}", self.endpoint, username))
+    }
+
+    pub fn get_sporecast_feed(&self, sporecast_id: i64) -> Result<String> {
+        self.get_text(&format!("{}/atom/sporecast/{}", self.endpoint, sporecast_id))
     }
 
     fn get_text(&self, url: &str) -> Result<String> {
@@ -41,13 +41,6 @@ impl SporeServer {
             "{}/static/thumb/{}/{}/{}/{}.png",
             self.endpoint, sub1, sub2, sub3, id
         );
-
-        let response = self.client
-            .get(&url)
-            .send()
-            .with_context(|| format!("Failed to GET {}", url))?
-            .error_for_status()
-            .with_context(|| format!("Server returned error for {}", url))?;
 
 
         let mut response = self.client
