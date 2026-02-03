@@ -6,3 +6,5 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.100"
 clap = { version = "4.5.57", features = ["derive"] }
+reqwest = { version = "0.13.1", features = ["blocking"] }
+roxmltree = "0.21.1"
