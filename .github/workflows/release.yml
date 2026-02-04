@@ -31,9 +31,10 @@ jobs:
     runs-on: ${{ matrix.platform.runs-on }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Build
+      - name: Build executable
         uses: houseabsolute/actions-rust-cross@v1
         with:
           command: build
@@ -46,4 +47,7 @@ jobs:
         with:
           executable-name: spore-downloader
           target: ${{ matrix.platform.target }}
-          prerelease: ${{ contains(github.ref_name, '-rc') }}
+          action-gh-release-parameters: |
+            {
+              "prerelease": ${{ contains(github.ref_name, '-rc') }}
+            }
