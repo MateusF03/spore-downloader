@@ -1,9 +1,9 @@
-mod spore_user;
 mod spore_server;
+mod spore_user;
 mod sporecast;
 
-use clap::{Parser, Subcommand};
 use anyhow::Result;
+use clap::{Parser, Subcommand};
 use spore_user::SporeUser;
 use sporecast::Sporecast;
 
@@ -24,6 +24,10 @@ enum Commands {
         /// Output directory
         #[arg(short, long, default_value = "spore_assets/users")]
         output: String,
+
+        /// Separate assets into subdirectories by type
+        #[arg(short, long, default_value_t = false)]
+        separate_by_type: bool,
     },
 
     /// Download all assets from a sporecast
@@ -34,6 +38,10 @@ enum Commands {
         /// Output directory
         #[arg(short, long, default_value = "spore_assets/sporecasts")]
         output: String,
+
+        /// Separate assets into subdirectories by type
+        #[arg(short, long, default_value_t = false)]
+        separate_by_type: bool,
     },
 }
 
@@ -41,13 +49,21 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::User { username, output } => {
+        Commands::User {
+            username,
+            output,
+            separate_by_type,
+        } => {
             let user = SporeUser::new(username.clone());
-            user.download_all_assets(output)?;
+            user.download_all_assets(output, *separate_by_type)?;
         }
-        Commands::Sporecast { id, output } => {
+        Commands::Sporecast {
+            id,
+            output,
+            separate_by_type,
+        } => {
             let sporecast = Sporecast::new(*id);
-            sporecast.download_all_assets(output)?;
+            sporecast.download_all_assets(output, *separate_by_type)?;
         }
     }
     Ok(())
