@@ -58,7 +58,7 @@ spore-downloader sporecast 123456789 --output ./sporecast_backups
 ```
 ### Output Structure
 
-Downloaded assets are saved as PNG files in directories named after the user or sporecast ID:
+By default, downloaded assets are saved as PNG files in directories named after the user or sporecast ID:
 
 ```text
 spore_assets/
@@ -66,16 +66,24 @@ spore_assets/
 │   └── JohnDoe/
 │       ├── 123456789.png
 │       └── 987654321.png
-└── sporecasts/
-    └── 123456789/
-        ├── 111111111.png
-        └── 222222222.png
+```
+If `--separate-by-type` is enabled, assets are grouped by creation type:
+```text
+spore_assets/
+├── users/
+│   └── JohnDoe/
+│       ├── creatures/
+│       ├── vehicles/
+│       ├── buildings/
+│       ├── ufos/
+│       └── adventures/
 ```
 
 ### Options
 
 - `-o, --output <directory>`: Specify a custom output directory
 - `-h, --help`: Display help information
+- `--separate-by-type`: Organize downloaded assets into folders by creation type
 
 ## Acknowledgments
 
