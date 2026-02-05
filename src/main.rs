@@ -22,11 +22,21 @@ enum Commands {
         username: String,
 
         /// Output directory
-        #[arg(short, long, default_value = "spore_assets/users")]
+        #[arg(
+            short,
+            long,
+            default_value = "spore_assets/users",
+            help = "Output directory"
+        )]
         output: String,
 
         /// Separate assets into subdirectories by type
-        #[arg(short, long, default_value_t = false)]
+        #[arg(
+            short,
+            long,
+            default_value_t = false,
+            help = "Separate assets into subdirectories by type"
+        )]
         separate_by_type: bool,
     },
 
@@ -36,11 +46,21 @@ enum Commands {
         id: i64,
 
         /// Output directory
-        #[arg(short, long, default_value = "spore_assets/sporecasts")]
+        #[arg(
+            short,
+            long,
+            default_value = "spore_assets/sporecasts",
+            help = "Output directory"
+        )]
         output: String,
 
         /// Separate assets into subdirectories by type
-        #[arg(short, long, default_value_t = false)]
+        #[arg(
+            short,
+            long,
+            default_value_t = false,
+            help = "Separate assets into subdirectories by type"
+        )]
         separate_by_type: bool,
     },
 }
