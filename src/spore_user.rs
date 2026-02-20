@@ -55,7 +55,7 @@ impl SporeUser {
 
                 let asset_type = enclosure
                     .and_then(|n| n.attribute("type"))
-                    .map(Self::asset_type_from_mime)
+                    .map(|mime| mime.into())
                     .unwrap_or(AssetType::Unknown);
 
                 println!(
@@ -118,16 +118,5 @@ impl SporeUser {
             self.user_name, user_dir
         );
         Ok(())
-    }
-
-    fn asset_type_from_mime(mime: &str) -> AssetType {
-        match mime {
-            "application/x-creature+xml" => AssetType::Creature,
-            "application/x-vehicle+xml" => AssetType::Vehicle,
-            "application/x-building+xml" => AssetType::Building,
-            "application/x-ufo+xml" => AssetType::Ufo,
-            "application/x-adventure+xml" => AssetType::Adventure,
-            _ => AssetType::Unknown,
-        }
     }
 }

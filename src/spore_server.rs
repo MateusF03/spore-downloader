@@ -33,6 +33,19 @@ impl AssetType {
     }
 }
 
+impl From<&str> for AssetType {
+    fn from(mime: &str) -> Self {
+        match mime {
+            "application/x-creature+xml" => AssetType::Creature,
+            "application/x-vehicle+xml" => AssetType::Vehicle,
+            "application/x-building+xml" => AssetType::Building,
+            "application/x-ufo+xml" => AssetType::Ufo,
+            "application/x-adventure+xml" => AssetType::Adventure,
+            _ => AssetType::Unknown,
+        }
+    }
+}
+
 pub struct SporeServer {
     endpoint: String,
     client: Client,
