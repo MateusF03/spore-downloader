@@ -24,6 +24,10 @@ impl SporeUser {
             .context("Failed to download asset feed")?;
 
         let assets = parse_assets_from_feed(&xml)?;
+        if assets.is_empty() {
+            anyhow::bail!("No assets found in user feed");
+        }
+        println!("Found {} assets in user feed", assets.len());
 
         Ok(assets)
     }

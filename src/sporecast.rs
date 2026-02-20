@@ -20,6 +20,10 @@ impl Sporecast {
             .context("Failed to download sporecast feed")?;
 
         let assets = parse_assets_from_feed(&xml)?;
+        if assets.is_empty() {
+            anyhow::bail!("No assets found in sporecast feed");
+        }
+        println!("Found {} assets in sporecast feed", assets.len());
 
         Ok(assets)
     }
