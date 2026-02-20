@@ -42,19 +42,20 @@ impl SporeUser {
 
                 let entry_id = id_node.text().context("<id> element was empty")?;
 
-                let enclosure = entry
+                let asset_type = entry
                     .children()
-                    .filter(|n| {
-                        n.has_tag_name((atom_ns, "link")) && n.attribute("rel") == Some("enclosure")
+                    .find_map(|n| {
+                        if n.has_tag_name((atom_ns, "link"))
+                            && n.attribute("rel").is_some_and(|r| r == "enclosure")
+                        {
+                            n.attribute("type")
+                                .filter(|t| t.starts_with("application/x-"))
+                        } else {
+                            None
+                        }
                     })
-                    .find(|n| {
-                        n.attribute("type")
-                            .is_some_and(|t| t.starts_with("application/x-"))
-                    });
-
-                let asset_type = enclosure
-                    .and_then(|n| n.attribute("type"))
                     .map_or(AssetType::Unknown, Into::into);
+
                 println!("Determined asset type {asset_type:?} for entry ID {entry_id}");
 
                 let asset_id: i64 = entry_id
