@@ -1,9 +1,11 @@
 use anyhow::{Context, Result};
-use roxmltree::Document;
 use std::fs;
 use std::path::PathBuf;
 
-use crate::spore_server::{Asset, AssetType, SporeServer};
+use crate::{
+    feed_parser::parse_assets_from_feed,
+    spore_server::{Asset, SporeServer},
+};
 
 pub struct SporeUser {
     pub user_name: String,
@@ -16,70 +18,12 @@ impl SporeUser {
 
     pub fn get_all_assets(&self) -> Result<Vec<Asset>> {
         let server = SporeServer::new();
-        let mut assets = Vec::new();
 
         let xml = server
             .get_assets_from_user_feed(&self.user_name)
             .context("Failed to download asset feed")?;
 
-        let doc = Document::parse(&xml).context("Failed to parse Atom XML")?;
-
-        let atom_ns = "http://www.w3.org/2005/Atom";
-
-        let feed = doc
-            .descendants()
-            .find(|n| n.has_tag_name((atom_ns, "feed")));
-
-        if let Some(feed) = feed {
-            for entry in feed
-                .children()
-                .filter(|n| n.has_tag_name((atom_ns, "entry")))
-            {
-                let id_node = entry
-                    .children()
-                    .find(|n| n.has_tag_name((atom_ns, "id")))
-                    .context("Entry missing <id> element")?;
-
-                let entry_id = id_node.text().context("<id> element was empty")?;
-
-                let asset_type = entry
-                    .children()
-                    .find_map(|n| {
-                        if n.has_tag_name((atom_ns, "link"))
-                            && n.attribute("rel").is_some_and(|r| r == "enclosure")
-                        {
-                            n.attribute("type")
-                                .filter(|t| t.starts_with("application/x-"))
-                        } else {
-                            None
-                        }
-                    })
-                    .map_or(AssetType::Unknown, Into::into);
-
-                println!("Determined asset type {asset_type:?} for entry ID {entry_id}");
-
-                let asset_id: i64 = entry_id
-                    .split('/')
-                    .nth(1)
-                    .context("Unexpected <id> format")?
-                    .parse()
-                    .context("Failed to parse asset ID")?;
-
-                assets.push(Asset {
-                    id: asset_id,
-                    asset_type,
-                });
-
-                println!("Found asset ID {} for user {}", asset_id, self.user_name);
-            }
-
-            println!("Found {} assets for user {}", assets.len(), self.user_name);
-        } else {
-            println!(
-                "Found no assets for user {}, feed did not exist",
-                self.user_name
-            );
-        }
+        let assets = parse_assets_from_feed(&xml)?;
 
         Ok(assets)
     }
