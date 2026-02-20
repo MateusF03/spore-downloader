@@ -29,7 +29,7 @@ enum Commands {
         output: String,
 
         /// Separate assets into subdirectories by type
-        #[arg(short, long, default_value_t = false)]
+        #[arg(short, long)]
         separate_by_type: bool,
     },
 
