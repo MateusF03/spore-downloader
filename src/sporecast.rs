@@ -50,14 +50,12 @@ impl Sporecast {
                     })
                     .find(|n| {
                         n.attribute("type")
-                            .map(|t| t.starts_with("application/x-"))
-                            .unwrap_or(false)
+                            .is_some_and(|t| t.starts_with("application/x-"))
                     });
 
                 let asset_type = enclosure
                     .and_then(|n| n.attribute("type"))
-                    .map(|mime| mime.into())
-                    .unwrap_or(AssetType::Unknown);
+                    .map_or(AssetType::Unknown, Into::into);
 
                 assets.push(Asset {
                     id: asset_id,
@@ -87,14 +85,21 @@ impl Sporecast {
             if separate_by_type {
                 asset_path.push(asset.asset_type.dir_name());
                 std::fs::create_dir_all(&asset_path).with_context(|| {
-                    format!("Failed to create directory {:?} for asset type", asset_path)
+                    format!(
+                        "Failed to create directory {} for asset type",
+                        asset_path.display()
+                    )
                 })?;
             }
             asset_path.push(format!("{}.png", asset.id));
             server
                 .download_asset_png(asset.id, &asset_path)
                 .with_context(|| format!("Failed to download asset ID {}", asset.id))?;
-            println!("Downloaded asset ID {} to {:?}", asset.id, asset_path);
+            println!(
+                "Downloaded asset ID {} to {}",
+                asset.id,
+                asset_path.display()
+            );
         }
         println!("All assets downloaded for sporecast {}", self.id);
 

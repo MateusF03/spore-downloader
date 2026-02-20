@@ -49,19 +49,13 @@ impl SporeUser {
                     })
                     .find(|n| {
                         n.attribute("type")
-                            .map(|t| t.starts_with("application/x-"))
-                            .unwrap_or(false)
+                            .is_some_and(|t| t.starts_with("application/x-"))
                     });
 
                 let asset_type = enclosure
                     .and_then(|n| n.attribute("type"))
-                    .map(|mime| mime.into())
-                    .unwrap_or(AssetType::Unknown);
-
-                println!(
-                    "Determined asset type {:?} for entry ID {}",
-                    asset_type, entry_id
-                );
+                    .map_or(AssetType::Unknown, Into::into);
+                println!("Determined asset type {asset_type:?} for entry ID {entry_id}");
 
                 let asset_id: i64 = entry_id
                     .split('/')
@@ -96,14 +90,17 @@ impl SporeUser {
         let mut user_dir = PathBuf::from(base_path);
         user_dir.push(&self.user_name);
         fs::create_dir_all(&user_dir)
-            .with_context(|| format!("Failed to create directory {:?}", user_dir))?;
+            .with_context(|| format!("Failed to create directory {}", user_dir.display()))?;
 
         for asset in assets {
             let mut asset_path = user_dir.clone();
             if separate_by_type {
                 asset_path.push(asset.asset_type.dir_name());
                 fs::create_dir_all(&asset_path).with_context(|| {
-                    format!("Failed to create directory {:?} for asset type", asset_path)
+                    format!(
+                        "Failed to create directory {} for asset type",
+                        asset_path.display()
+                    )
                 })?;
             }
             asset_path.push(format!("{}.png", asset.id));
@@ -111,11 +108,16 @@ impl SporeUser {
                 .download_asset_png(asset.id, &asset_path)
                 .with_context(|| format!("Failed to download asset {}", asset.id))?;
 
-            println!("Downloaded asset ID {} to {:?}", asset.id, asset_path);
+            println!(
+                "Downloaded asset ID {} to {}",
+                asset.id,
+                asset_path.display()
+            );
         }
         println!(
-            "Downloaded all assets for user {} into {:?}",
-            self.user_name, user_dir
+            "Downloaded all assets for user {} into {}",
+            self.user_name,
+            user_dir.display()
         );
         Ok(())
     }
