@@ -1,9 +1,11 @@
+mod spore_adventure;
 mod spore_server;
 mod spore_user;
 mod sporecast;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
+use spore_adventure::SporeAdventure;
 use spore_user::SporeUser;
 use sporecast::Sporecast;
 
@@ -22,21 +24,11 @@ enum Commands {
         username: String,
 
         /// Output directory
-        #[arg(
-            short,
-            long,
-            default_value = "spore_assets/users",
-            help = "Output directory"
-        )]
+        #[arg(short, long, default_value = "spore_assets/users")]
         output: String,
 
         /// Separate assets into subdirectories by type
-        #[arg(
-            short,
-            long,
-            default_value_t = false,
-            help = "Separate assets into subdirectories by type"
-        )]
+        #[arg(short, long, default_value_t = false)]
         separate_by_type: bool,
     },
 
@@ -46,21 +38,25 @@ enum Commands {
         id: i64,
 
         /// Output directory
-        #[arg(
-            short,
-            long,
-            default_value = "spore_assets/sporecasts",
-            help = "Output directory"
-        )]
+        #[arg(short, long, default_value = "spore_assets/sporecasts")]
         output: String,
 
         /// Separate assets into subdirectories by type
-        #[arg(
-            short,
-            long,
-            default_value_t = false,
-            help = "Separate assets into subdirectories by type"
-        )]
+        #[arg(short, long, default_value_t = false)]
+        separate_by_type: bool,
+    },
+
+    /// Download all assets from an adventure
+    Adventure {
+        /// Spore adventure ID
+        id: i64,
+
+        /// Output directory
+        #[arg(short, long, default_value = "spore_assets/adventures")]
+        output: String,
+
+        /// Separate assets into subdirectories by type
+        #[arg(short, long, default_value_t = false)]
         separate_by_type: bool,
     },
 }
@@ -84,6 +80,15 @@ fn main() -> Result<()> {
         } => {
             let sporecast = Sporecast::new(*id);
             sporecast.download_all_assets(output, *separate_by_type)?;
+        }
+        Commands::Adventure {
+            id,
+            output,
+            separate_by_type,
+        } => {
+            // @TODO: Implement adventure downloading;
+            let adventure = SporeAdventure::new(*id);
+            println!("Downloading assets for adventure ID {}", adventure.id);
         }
     }
     Ok(())
