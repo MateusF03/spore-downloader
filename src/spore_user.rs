@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, bail};
 use std::fs;
 use std::path::PathBuf;
 
@@ -25,7 +25,7 @@ impl SporeUser {
 
         let assets = parse_assets_from_feed(&xml)?;
         if assets.is_empty() {
-            anyhow::bail!("No assets found in user feed");
+            bail!("No assets found in user feed");
         }
         println!("Found {} assets in user feed", assets.len());
 

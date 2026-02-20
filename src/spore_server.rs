@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Result, bail};
 use reqwest::blocking::Client;
 use std::fs::File;
 use std::io::copy;
@@ -77,7 +77,7 @@ impl SporeServer {
     pub fn download_asset_png(&self, asset_id: i64, file_path: &Path) -> Result<()> {
         let id = asset_id.to_string();
         if id.len() < 9 {
-            anyhow::bail!("asset id {id} is too short");
+            bail!("asset id {id} is too short");
         }
         let sub1 = &id[0..3];
         let sub2 = &id[3..6];

@@ -2,7 +2,7 @@ use crate::{
     feed_parser::parse_assets_from_feed,
     spore_server::{Asset, SporeServer},
 };
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, bail};
 
 pub struct Sporecast {
     pub id: i64,
@@ -21,7 +21,7 @@ impl Sporecast {
 
         let assets = parse_assets_from_feed(&xml)?;
         if assets.is_empty() {
-            anyhow::bail!("No assets found in sporecast feed");
+            bail!("No assets found in sporecast feed");
         }
         println!("Found {} assets in sporecast feed", assets.len());
 
