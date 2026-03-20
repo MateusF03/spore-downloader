@@ -70,6 +70,17 @@ impl SporeServer {
         ))
     }
 
+    pub fn get_adventure_xml(&self, adventure_id: i64) -> Result<String> {
+        let id = adventure_id.to_string();
+        let sub1 = &id[0..3];
+        let sub2 = &id[3..6];
+        let sub3 = &id[6..9];
+        self.get_text(&format!(
+            "{}/static/model/{}/{}/{}/{}.xml",
+            self.endpoint, sub1, sub2, sub3, id
+        ))
+    }
+
     fn get_text(&self, url: &str) -> Result<String> {
         Ok(self.client.get(url).send()?.text()?)
     }
