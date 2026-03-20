@@ -82,7 +82,9 @@ impl SporeServer {
     }
 
     fn get_text(&self, url: &str) -> Result<String> {
-        Ok(self.client.get(url).send()?.text()?)
+        let response = self.client.get(url).send()?;
+        let success_response = response.error_for_status()?;
+        Ok(success_response.text()?)
     }
 
     pub fn download_asset_png(&self, asset_id: i64, file_path: &Path) -> Result<()> {
