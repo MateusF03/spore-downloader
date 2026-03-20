@@ -87,9 +87,8 @@ fn main() -> Result<()> {
             output,
             separate_by_type,
         } => {
-            // @TODO: Implement adventure downloading;
             let adventure = SporeAdventure::new(*id);
-            println!("Downloading assets for adventure ID {}", adventure.id);
+            adventure.download_all_assets(output, *separate_by_type)?;
         }
     }
     Ok(())
