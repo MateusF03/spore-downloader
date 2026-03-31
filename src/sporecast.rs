@@ -1,5 +1,6 @@
 use crate::{
     feed_parser::parse_assets_from_feed,
+    progress::create_progress_bar,
     spore_server::{Asset, SporeServer},
 };
 use anyhow::{Context, Result, bail};
@@ -32,7 +33,13 @@ impl Sporecast {
         let server = SporeServer::new();
         let assets = self.get_all_assets()?;
 
-        for asset in assets {
+        std::fs::create_dir_all(output_dir)
+            .with_context(|| format!("Failed to create base output directory: {}", output_dir))?;
+
+        let pb = create_progress_bar(assets.len() as u64);
+        pb.set_message("downloading assets");
+
+        for asset in &assets {
             let mut asset_path = std::path::PathBuf::from(output_dir);
             if separate_by_type {
                 asset_path.push(asset.asset_type.dir_name());
@@ -44,16 +51,24 @@ impl Sporecast {
                 })?;
             }
             asset_path.push(format!("{}.png", asset.id));
+
             server
                 .download_asset_png(asset.id, &asset_path)
                 .with_context(|| format!("Failed to download asset ID {}", asset.id))?;
-            println!(
-                "Downloaded asset ID {} to {}",
+
+            pb.println(format!(
+                "  Downloaded asset ID {} to {}",
                 asset.id,
                 asset_path.display()
-            );
+            ));
+            pb.inc(1);
         }
-        println!("All assets downloaded for sporecast {}", self.id);
+
+        pb.finish_with_message(format!(
+            "Downloaded {} assets for sporecast {}",
+            assets.len(),
+            self.id
+        ));
 
         Ok(())
     }

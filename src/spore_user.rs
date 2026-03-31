@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use crate::{
     feed_parser::parse_assets_from_feed,
+    progress::create_progress_bar,
     spore_server::{Asset, SporeServer},
 };
 
@@ -41,7 +42,10 @@ impl SporeUser {
         fs::create_dir_all(&user_dir)
             .with_context(|| format!("Failed to create directory {}", user_dir.display()))?;
 
-        for asset in assets {
+        let pb = create_progress_bar(assets.len() as u64);
+        pb.set_message("downloading assets");
+
+        for asset in &assets {
             let mut asset_path = user_dir.clone();
             if separate_by_type {
                 asset_path.push(asset.asset_type.dir_name());
@@ -57,17 +61,19 @@ impl SporeUser {
                 .download_asset_png(asset.id, &asset_path)
                 .with_context(|| format!("Failed to download asset {}", asset.id))?;
 
-            println!(
-                "Downloaded asset ID {} to {}",
+            pb.println(format!(
+                "  Downloaded asset ID {} to {}",
                 asset.id,
                 asset_path.display()
-            );
+            ));
+            pb.inc(1);
         }
-        println!(
-            "Downloaded all assets for user {} into {}",
+        pb.finish_with_message(format!(
+            "Downloaded {} assets for user {} into {}",
+            assets.len(),
             self.user_name,
             user_dir.display()
-        );
+        ));
         Ok(())
     }
 }

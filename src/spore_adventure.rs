@@ -1,4 +1,7 @@
-use crate::spore_server::{Asset, AssetType, SporeServer};
+use crate::{
+    progress::create_progress_bar,
+    spore_server::{Asset, AssetType, SporeServer},
+};
 use anyhow::{Context, Result, bail};
 
 pub struct SporeAdventure {
@@ -84,7 +87,10 @@ impl SporeAdventure {
 
         let assets = self.get_all_assets()?;
 
-        for asset in assets {
+        let pb = create_progress_bar(assets.len() as u64);
+        pb.set_message("downloading assets");
+
+        for asset in &assets {
             let mut asset_path = std::path::PathBuf::from(output_dir);
             if separate_by_type {
                 asset_path.push(asset.asset_type.dir_name());
@@ -99,14 +105,18 @@ impl SporeAdventure {
             server
                 .download_asset_png(asset.id, &asset_path)
                 .with_context(|| format!("Failed to download asset ID {}", asset.id))?;
-            println!(
-                "Downloaded asset ID {} to {}",
+            pb.println(format!(
+                "  Downloaded asset ID {} to {}",
                 asset.id,
                 asset_path.display()
-            );
+            ));
+            pb.inc(1);
         }
-
-        println!("All assets downloaded for adventure {}", self.id);
+        pb.finish_with_message(format!(
+            "Downloaded {} assets for adventure {}",
+            assets.len(),
+            self.id
+        ));
         Ok(())
     }
 }
