@@ -1,3 +1,8 @@
+## 0.1.4
+
+- Added adventure downloading support
+- Added progress bar for downloads
+
 ## 0.1.3
 
 - Improved asset type detection (creature, vehicle, building, adventure)
