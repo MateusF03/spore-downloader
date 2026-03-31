@@ -1,4 +1,5 @@
 mod feed_parser;
+mod progress;
 mod spore_adventure;
 mod spore_server;
 mod spore_user;
