@@ -24,7 +24,7 @@ impl SporeAdventure {
         Ok(())
     }
 
-    pub fn get_all_assets(&self) -> Result<Vec<Asset>> {
+    pub fn get_all_assets(&self, separate_by_type: bool) -> Result<Vec<Asset>> {
         let server = SporeServer::new();
         let xml = server
             .get_adventure_xml(self.id)
@@ -46,10 +46,12 @@ impl SporeAdventure {
             let id: i64 = id_str
                 .parse()
                 .with_context(|| format!("Failed to parse asset ID: {id_str}"))?;
-            assets.push(Asset {
-                id,
-                asset_type: AssetType::Unknown,
-            });
+            let asset_type = if separate_by_type {
+                server.get_asset_type(id).unwrap_or(AssetType::Unknown)
+            } else {
+                AssetType::Unknown
+            };
+            assets.push(Asset { id, asset_type });
         }
 
         println!(
@@ -85,7 +87,7 @@ impl SporeAdventure {
             adventure_path.display()
         );
 
-        let assets = self.get_all_assets()?;
+        let assets = self.get_all_assets(separate_by_type)?;
 
         let pb = create_progress_bar(assets.len() as u64);
         pb.set_message("downloading assets");

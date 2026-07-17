@@ -34,7 +34,7 @@ impl Sporecast {
         let assets = self.get_all_assets()?;
 
         std::fs::create_dir_all(output_dir)
-            .with_context(|| format!("Failed to create base output directory: {}", output_dir))?;
+            .with_context(|| format!("Failed to create base output directory: {output_dir}"))?;
 
         let pb = create_progress_bar(assets.len() as u64);
         pb.set_message("downloading assets");

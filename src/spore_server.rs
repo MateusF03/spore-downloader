@@ -36,11 +36,11 @@ impl AssetType {
 impl From<&str> for AssetType {
     fn from(mime: &str) -> Self {
         match mime {
-            "application/x-creature+xml" => AssetType::Creature,
-            "application/x-vehicle+xml" => AssetType::Vehicle,
-            "application/x-building+xml" => AssetType::Building,
-            "application/x-ufo+xml" => AssetType::Ufo,
-            "application/x-adventure+xml" => AssetType::Adventure,
+            "application/x-creature+xml" | "CREATURE" => AssetType::Creature,
+            "application/x-vehicle+xml" | "VEHICLE" => AssetType::Vehicle,
+            "application/x-building+xml" | "BUILDING" => AssetType::Building,
+            "application/x-ufo+xml" | "UFO" => AssetType::Ufo,
+            "application/x-adventure+xml" | "ADVENTURE" => AssetType::Adventure,
             _ => AssetType::Unknown,
         }
     }
@@ -79,6 +79,17 @@ impl SporeServer {
             "{}/static/model/{}/{}/{}/{}.xml",
             self.endpoint, sub1, sub2, sub3, id
         ))
+    }
+
+    pub fn get_asset_type(&self, asset_id: i64) -> Result<AssetType> {
+        let xml = self
+            .get_text(&format!("{}/rest/asset/{}", self.endpoint, asset_id))?;
+        let type_str = xml
+            .split("<type>")
+            .nth(1)
+            .and_then(|s| s.split("</type>").next())
+            .unwrap_or("");
+        Ok(AssetType::from(type_str))
     }
 
     fn get_text(&self, url: &str) -> Result<String> {
