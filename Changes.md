@@ -1,3 +1,7 @@
+## 0.1.5
+
+- Fixed adventure separate-by-type argument. Now it calls another API route the get the asset information.
+
 ## 0.1.4
 
 - Added adventure downloading support
